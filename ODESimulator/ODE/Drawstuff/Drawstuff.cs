@@ -40,6 +40,9 @@ namespace CsDrawstuff
 		[DllImport("drawstuff", EntryPoint = "dsDrawCapsule")]
 		public static extern void DrawCapsule(ref Ode.Vector3 pos, ref Ode.Matrix3 R, dReal length, dReal radius);
 
+		[DllImport("drawstuff", EntryPoint = "dsDrawCylinder")]
+		public static extern void DrawCylinder(ref Ode.Vector3 pos, ref Ode.Matrix3 R, dReal length, dReal radius);
+
 		[DllImport("drawstuff", EntryPoint = "dsDrawSphere")]
 		public static extern void DrawSphere(ref Ode.Vector3 pos, ref Ode.Matrix3 R, dReal radius);
 

@@ -46,11 +46,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Drawstuff.cs" />
-    <Compile Include="ODE.cs" />
-    <Compile Include="ODEWorld.cs" />
+    <Compile Include="ODE\Drawstuff\Drawstuff.cs" />
+    <Compile Include="ODE\ODEObject\ODEObject.cs" />
+    <Compile Include="ODE\ODE.cs" />
+    <Compile Include="ODE\ODEWorld.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Simulation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="drawstuff.dll">
@@ -61,13 +63,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="drawstuff\textures\ground.ppm">
+    <None Include="ODE\Drawstuff\textures\ground.ppm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="drawstuff\textures\sky.ppm">
+    <None Include="ODE\Drawstuff\textures\sky.ppm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="drawstuff\textures\wood.ppm">
+    <None Include="ODE\Drawstuff\textures\wood.ppm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

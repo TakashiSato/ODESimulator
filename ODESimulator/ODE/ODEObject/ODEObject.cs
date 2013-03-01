@@ -115,18 +115,24 @@ namespace ODESimulator.ODE.Object
 		/// オブジェクトの位置行列を取得
 		/// </summary>
 		/// <param name="pos">位置行列</param>
-		public void GetBodyPosition(out Ode.Vector3 pos)
+		public Ode.Vector3 GetBodyPosition()
 		{
+			Ode.Vector3 pos;
 			Ode.BodyCopyPosition(_body, out pos);
+
+			return pos;
 		}
 
 		/// <summary>
 		/// オブジェクトの回転行列を取得
 		/// </summary>
 		/// <param name="R">回転行列</param>
-		public void GetBodyRotation(out Ode.Matrix3 R)
+		public Ode.Matrix3 GetBodyRotation()
 		{
+			Ode.Matrix3 R;
 			Ode.BodyCopyRotation(_body, out R);
+
+			return R;
 		}
 
 		/// <summary>
@@ -305,10 +311,8 @@ namespace ODESimulator.ODE.Object
 		/// <param name="blue">描画色青成分[0,1]</param>
 		public override void DrawByDrawstuff(Real red, Real green, Real blue)
 		{
-			Ode.Vector3 pos;
-			GetBodyPosition(out pos);
-			Ode.Matrix3 R;
-			GetBodyRotation(out R);
+			Ode.Vector3 pos = GetBodyPosition();
+			Ode.Matrix3 R = GetBodyRotation();
 
 			Ds.SetColor(red, green, blue);			// 色の設定(R,G,B) [0,1]で設定
 			Ds.DrawSphere(ref pos, ref R, _radius);	// オブジェクトをDrawstuffで描画
@@ -320,10 +324,8 @@ namespace ODESimulator.ODE.Object
 		/// <param name="param">見かけ上の球オブジェクトの半径</param>
 		public override void DrawByDrawstuff(Real red, Real green, Real blue, Real param)
 		{
-			Ode.Vector3 pos;
-			GetBodyPosition(out pos);
-			Ode.Matrix3 R;
-			GetBodyRotation(out R);
+			Ode.Vector3 pos = GetBodyPosition();
+			Ode.Matrix3 R = GetBodyRotation();
 
 			Ds.SetColor(red, green, blue);			// 色の設定(R,G,B) [0,1]で設定
 			Ds.DrawSphere(ref pos, ref R, param);	// オブジェクトをDrawstuffで描画
@@ -408,10 +410,8 @@ namespace ODESimulator.ODE.Object
 		/// <param name="blue">描画色青成分[0,1]</param>
 		public override void DrawByDrawstuff(Real red, Real green, Real blue)
 		{
-			Ode.Vector3 pos;
-			GetBodyPosition(out pos);
-			Ode.Matrix3 R;
-			GetBodyRotation(out R);
+			Ode.Vector3 pos = GetBodyPosition();
+			Ode.Matrix3 R = GetBodyRotation();
 
 			Ds.SetColor(red, green, blue);						// 色の設定(R,G,B) [0,1]で設定
 			Ds.DrawCylinder(ref pos, ref R, _length, _radius);	// オブジェクトをDrawstuffで描画
@@ -423,10 +423,8 @@ namespace ODESimulator.ODE.Object
 		/// <param name="param">見かけ上の球オブジェクトの半径</param>
 		public override void DrawByDrawstuff(Real red, Real green, Real blue, Real param)
 		{
-			Ode.Vector3 pos;
-			GetBodyPosition(out pos);
-			Ode.Matrix3 R;
-			GetBodyRotation(out R);
+			Ode.Vector3 pos = GetBodyPosition();
+			Ode.Matrix3 R = GetBodyRotation();
 
 			Ds.SetColor(red, green, blue);						// 色の設定(R,G,B) [0,1]で設定
 			Ds.DrawCylinder(ref pos, ref R, param, _radius);	// オブジェクトをDrawstuffで描画
@@ -509,10 +507,8 @@ namespace ODESimulator.ODE.Object
 		/// <param name="blue">描画色青成分[0,1]</param>
 		public override void DrawByDrawstuff(Real red, Real green, Real blue)
 		{
-			Ode.Vector3 pos;
-			GetBodyPosition(out pos);
-			Ode.Matrix3 R;
-			GetBodyRotation(out R);
+			Ode.Vector3 pos = GetBodyPosition();
+			Ode.Matrix3 R = GetBodyRotation();
 
 			Ds.SetColor(red, green, blue);			// 色の設定(R,G,B) [0,1]で設定
 			Ds.DrawBox(ref pos, ref R, ref _side);	// オブジェクトをDrawstuffで描画
@@ -524,10 +520,8 @@ namespace ODESimulator.ODE.Object
 		/// <param name="param">見かけ上の球オブジェクトの半径</param>
 		public override void DrawByDrawstuff(Real red, Real green, Real blue, Real param)
 		{
-			Ode.Vector3 pos;
-			GetBodyPosition(out pos);
-			Ode.Matrix3 R;
-			GetBodyRotation(out R);
+			Ode.Vector3 pos = GetBodyPosition();
+			Ode.Matrix3 R = GetBodyRotation();
 
 			Ds.SetColor(red, green, blue);			// 色の設定(R,G,B) [0,1]で設定
 			Ds.DrawBox(ref pos, ref R, ref _side);	// オブジェクトをDrawstuffで描画

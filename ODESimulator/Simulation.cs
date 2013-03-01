@@ -19,22 +19,37 @@ namespace ODESimulator
 	using Real = Single;
 	#endregion
 
+	#region enum
+	/// <summary>
+	/// カメラ視点の方式
+	/// </summary>
+	enum ViewpointMode
+	{
+		Fixed,				// 固定視点
+		Trace,				// 車追従視点
+		FirstPerson			// 車一人称視点
+	}
+	#endregion
+
+	/// <summary>
+	/// Simulation Class
+	/// </summary>
 	public class Simulation : ODE.World
 	{
 		#region fields
-		/// <summary>車体</summary>
-		private ODE.Object.Box _carBody;
-		/// <summary>URG</summary>
-		private ODE.Object.Box _urg;
-		/// <summary>車輪</summary>
-		private ODE.Object.Cylinder[] _wheel = new ODE.Object.Cylinder[4];
-
 		/// <summary>シミューレション周期(秒)</summary>
 		private Real _simInterval = 0.01f;
 
-		/// <summary>車輪の回転速度</summary>
-		private Real _speedR = 0.0f;
-		private Real _speedL = 0.0f;
+		/// <summary>カメラ視点モード</summary>
+		private ViewpointMode _viewPointMode = ViewpointMode.Trace;
+
+		/// <summary>車クラス</summary>
+		private Car _car;
+		private Car _car2;
+		/// <summary>壁</summary>
+		private ODE.Object.Box[] _wall = new ODE.Object.Box[4];
+		/// <summary>ボール</summary>
+		private ODE.Object.Sphere _ball;
 		#endregion
 
 		/// <summary>
@@ -74,7 +89,10 @@ namespace ODESimulator
 		/// </summary>
 		private void PrepSimulation()
 		{
-			CreateCar();
+			_car = new Car(ref _world, ref _space, _simInterval, 0.0f, 0.0f);
+			_car2 = new Car(ref _world, ref _space, _simInterval, 3.0f, 4.0f);
+			CreateWall();
+			CreateBall();
 		}
 
 		/// <summary>
@@ -103,100 +121,75 @@ namespace ODESimulator
 		}
 
 		/// <summary>
-		/// 車の生成
+		/// 壁の生成
 		/// </summary>
-		private void CreateCar()
+		private void CreateWall()
 		{
-			Real PI = (float)Math.PI;
-			Real STARTZ = 0.5f;		// 車体の中心高さ
-			Real LENGTH = 0.7f;		// 車体の長さ
-			Real WIDTH = 0.5f;		// 車体の幅
-			Real HEIGHT = 0.8f;		// 車体の高さ
-			Real RADIUS_R = 0.18f;	// 後輪の半径
-			Real THICKNESS_R = 0.08f;// 後輪の厚み
-			Real RADIUS_L = 0.10f;	// 前輪の半径
-			Real THICKNESS_L = 0.08f;// 前輪の厚み
+			Real HEIGHT = 1.0f;
 
-			// 車体
-			_carBody = new ODE.Object.Box(
+			// 壁
+			_wall[0] = new ODE.Object.Box(
 				_world, _space,
-				0.0f, 0.0f, STARTZ,
+				-2.0f, 2.0f, HEIGHT/2,
 				0.0f, 0.0f, 0.0f,
 				0.0f,
 				0.0f, 0.0f, 0.0f,
 				0.0f, 0.0f, 0.0f,
-				9.0f,
-				WIDTH, LENGTH, HEIGHT
+				10.0f,
+				3.0f, 1.0f, HEIGHT
 			);
-
-			// URG
-			_urg = new ODE.Object.Box(
+			_wall[1] = new ODE.Object.Box(
 				_world, _space,
-				0.0f, LENGTH/2 - 0.1f, STARTZ + HEIGHT / 2 + 0.05f,
+				1.0f, 8.0f, HEIGHT/2,
 				0.0f, 0.0f, 0.0f,
 				0.0f,
-				0.0f, LENGTH / 2 - 0.1f, STARTZ + HEIGHT / 2 + 0.05f,
-				1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+				10.0f,
+				1.0f, 2.0f, HEIGHT
+			);
+			_wall[2] = new ODE.Object.Box(
+				_world, _space,
+				-2.0f, 12.0f, HEIGHT/2,
+				0.0f, 0.0f, 0.0f,
+				0.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+				10.0f,
+				2.0f, 1.0f, HEIGHT
+			);
+			_wall[3] = new ODE.Object.Box(
+				_world, _space,
+				0.0f, 15.0f, HEIGHT/2,
+				0.0f, 0.0f, 0.0f,
+				0.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+				10.0f,
+				2.0f, 1.0f, HEIGHT
+			);
+			for (int i = 0; i < 4; i++)
+			{
+				_wall[i].CreateJoint(Ode.JointType.Fixed);
+			}
+		}
+
+		/// <summary>
+		/// ボールの生成
+		/// </summary>
+		private void CreateBall()
+		{
+			// ボール
+			_ball = new ODE.Object.Sphere(
+				_world, _space,
+				0.0f, 5.0f, 2.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f,
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
 				0.1f,
-				0.1f, 0.1f, 0.1f
+				0.2f
 			);
-			_urg.CreateJoint(Ode.JointType.Hinge, _carBody);
-
-			// 後左輪
-			_wheel[0] = new ODE.Object.Cylinder(
-				_world, _space,
-				-WIDTH / 2 - THICKNESS_R / 2, -LENGTH / 2, RADIUS_R,
-				0.0f, 1.0f, 0.0f,
-				PI/2,
-				WIDTH / 2 + THICKNESS_R / 2, -LENGTH / 2, RADIUS_R,
-				1.0f, 0.0f, 0.0f,
-				0.2f,
-				RADIUS_R,
-				THICKNESS_R
-			);
-
-			// 後右輪
-			_wheel[1] = new ODE.Object.Cylinder(
-				_world, _space,
-				WIDTH / 2 + THICKNESS_R / 2, -LENGTH / 2, RADIUS_R,
-				0.0f, 1.0f, 0.0f,
-				PI / 2,
-				-WIDTH / 2 - THICKNESS_R / 2, -LENGTH / 2, RADIUS_R,
-				1.0f, 0.0f, 0.0f,
-				0.2f,
-				RADIUS_R,
-				THICKNESS_R
-			);
-
-			// 前左輪
-			_wheel[2] = new ODE.Object.Cylinder(
-				_world, _space,
-				-WIDTH / 2 - THICKNESS_L / 2, LENGTH / 2, RADIUS_L,
-				0.0f, 1.0f, 0.0f,
-				PI / 2,
-				-WIDTH / 2 -THICKNESS_L / 2, LENGTH / 2, RADIUS_L,
-				1.0f, 0.0f, 0.0f,
-				0.2f,
-				RADIUS_L,
-				THICKNESS_L
-			);
-
-			// 全右輪
-			_wheel[3] = new ODE.Object.Cylinder(
-				_world, _space,
-				WIDTH / 2 + THICKNESS_L / 2, LENGTH / 2, RADIUS_L,
-				0.0f, 1.0f, 0.0f,
-				PI / 2,
-				WIDTH / 2 + THICKNESS_L / 2, LENGTH / 2, RADIUS_L,
-				1.0f, 0.0f, 0.0f,
-				0.2f,
-				RADIUS_L,
-				THICKNESS_L
-			);
-			_wheel[0].CreateJoint(Ode.JointType.Hinge, _carBody);
-			_wheel[1].CreateJoint(Ode.JointType.Hinge, _carBody);
-			_wheel[2].CreateJoint(Ode.JointType.Hinge, _carBody);
-			_wheel[3].CreateJoint(Ode.JointType.Hinge, _carBody);
 		}
 
 		/// <summary>
@@ -204,26 +197,67 @@ namespace ODESimulator
 		/// </summary>
 		private void DrawSimulationWorld()
 		{
-			_carBody.DrawByDrawstuff(1.0f, 1.0f, 1.0f);
-			_urg.DrawByDrawstuff(0.0f, 0.0f, 1.0f);
+			_car.DrawByDrawstuff();
+			_car2.DrawByDrawstuff();
+
 			for (int i = 0; i < 4; i++)
 			{
-				_wheel[i].DrawByDrawstuff(0.0f, 0.0f, 0.0f);
+				_wall[i].DrawByDrawstuff(0.2f, 0.2f, 0.2f);
+				_ball.DrawByDrawstuff(1.0f, 0.0f, 0.0f);
 			}
 		}
 
 		/// <summary>
-		/// 車の制御
+		/// カメラ視点の更新処理
+		/// </summary>
+		/// <param name="vm">カメラ視点モード</param>
+		private void ViewpointUpdate(ViewpointMode vm)
+		{
+			Ode.Vector3 viewPos = new Ode.Vector3();		// 視点の位置(x, y, z)
+			Ode.Vector3 viewDir = new Ode.Vector3();		// 視点の方向(ヘッド，ピッチ，ロール)
+
+			// 車の位置行列・回転行列を取得
+			Ode.Vector3 pos; ;
+			Ode.Matrix3 R;
+			_car.GetStatus(out pos, out R);
+
+			switch (vm)
+			{
+				case ViewpointMode.Fixed:
+					break;
+
+				case ViewpointMode.Trace:
+					viewPos.X = pos.X;
+					viewPos.Y = pos.Y;
+					viewPos.Z = 10.0f;
+					viewDir.X = 90.0f;
+					viewDir.Y = -90.0f;
+					viewDir.Z = 0.0f;
+					Ds.SetViewpoint(ref viewPos, ref viewDir);		// 視点の設定
+					break;
+
+				case ViewpointMode.FirstPerson:
+					Real yaw = (float)Math.Atan2(R.M21, R.M11) / Ode.PI * 180.0f;
+
+					viewPos.X = pos.X;
+					viewPos.Y = pos.Y;
+					viewPos.Z = 0.5f;
+					viewDir.X = 90.0f - yaw;
+					viewDir.Y = 0.0f;
+					viewDir.Z = 0.0f;
+					Ds.SetViewpoint(ref viewPos, ref viewDir);		// 視点の設定
+					break;
+			}
+		}
+
+		/// <summary>
+		/// 制御
 		/// </summary>
 		private void Control()
 		{
-			Real fmax = 100f;
-
-			_wheel[0].SetJointParam(Ode.JointParam.Vel, _speedL);
-			_wheel[0].SetJointParam(Ode.JointParam.FMax, fmax);
-			_wheel[1].SetJointParam(Ode.JointParam.Vel, _speedR);
-			_wheel[1].SetJointParam(Ode.JointParam.FMax, fmax);
+			_car.Control();
 		}
+
 		#endregion
 
 		#region callback finction
@@ -240,9 +274,12 @@ namespace ODESimulator
 			Console.WriteLine("| Ctrl+T : Switch Texture               |");
 			Console.WriteLine("| Ctrl+S : Switch Shadow                |");
 			Console.WriteLine("| Ctrl+X : End of Simulation            |");
-			Console.WriteLine("| D, F   : Decel or Accel Left  Wheel |");
-			Console.WriteLine("| K, J   : Decel or Accel Right Wheel |");
-			Console.WriteLine("| I      : Stop                         |");
+			Console.WriteLine("-----------------------------------------");
+			Console.WriteLine("| D, F   : Decel or Accel Left  Wheel   |");
+			Console.WriteLine("| K, J   : Decel or Accel Right Wheel   |");
+			Console.WriteLine("| S      : Stop                         |");
+			Console.WriteLine("-----------------------------------------");
+			Console.WriteLine("| Z, X, C: Change Viewpoint              ");
 			Console.WriteLine("-----------------------------------------");
 		}
 
@@ -260,6 +297,8 @@ namespace ODESimulator
 			DrawSimulationWorld();
 			// 制御
 			Control();
+			// カメラ視点の更新
+			ViewpointUpdate(_viewPointMode);
 		}
 
 		/// <summary>
@@ -271,22 +310,46 @@ namespace ODESimulator
 			switch ((char)cmd)
 			{
 				case 'f':
-					_speedL += 0.5f;
+					_car.speedL += 0.5f;
 					break;
 				case 'd':
-					_speedL -= 0.5f;
+					_car.speedL -= 0.5f;
 					break;
 				case 'j':
-					_speedR += 0.5f;
+					_car.speedR += 0.5f;
 					break;
 				case 'k':
-					_speedR -= 0.5f;
+					_car.speedR -= 0.5f;
+					break;
+				case 'u':
+					_car.v += 1.0f;
 					break;
 				case 'i':
-					_speedR = _speedL =  0.0f;
+					_car.v -= 1.0f;
+					break;
+				case 'y':
+					_car.omega += 0.4f;
+					break;
+				case 'o':
+					_car.omega -= 0.4f;
+					break;
+				case 's':
+					_car.speedR = _car.speedL = 0.0f;
+					break;
+				// カメラ視点：固定
+				case 'z':
+					_viewPointMode = ViewpointMode.Fixed;
+					break;
+				// カメラ視点：追従
+				case 'x':
+					_viewPointMode = ViewpointMode.Trace;
+					break;
+				// カメラ視点：一人称視点
+				case 'c':
+					_viewPointMode = ViewpointMode.FirstPerson;
 					break;
 			}
-			Console.WriteLine("Speed: " + _speedL.ToString() + ", " + _speedR.ToString());
+			Console.WriteLine("SpeedL: " + _car.speedL.ToString() + ", SpeedR: " + _car.speedR.ToString());
 		}
 
 		/// <summary>

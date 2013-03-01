@@ -61,7 +61,6 @@ namespace ODESimulator.ODE
 			_ground = Ode.CreatePlane(_space, 0, 0, 1, 0);		// 地面の生成
 			_contactGroup = Ode.JointGroupCreate(0);			// 接触用ジョイントグループの生成
 
-
 			Ode.WorldSetGravity(_world, 0.0f, 0.0f, gravity);	// 重力の設定
 			Ode.WorldSetERP(_world, erp);						// ジョイント誤差修正パラメータ(推奨値は0.1~0.8)
 			Ode.WorldSetCFM(_world, cfm);						// 拘束力混合パラメータ(0:ハード拘束，大きくなるほどソフト拘束)

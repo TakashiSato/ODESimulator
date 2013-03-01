@@ -24,6 +24,13 @@ namespace CsOde
 	{
 		public static Real Infinity = Real.MaxValue;
 
+		/// <summary>円周率</summary>
+		#if Real == Single
+		public static Real PI = (float)Math.PI;
+		#elif Real == Double
+		public static Real PI = Math.PI;
+		#endif
+
 		#region flag and enumeration
 		[Flags]
 		public enum ContactFlags : int
